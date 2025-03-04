@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, Platform, ScaledSize, ViewStyle, StatusBar, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, Dimensions, Platform, ScaledSize, ViewStyle, StatusBar } from 'react-native';
 import { ThemeProvider, ThemeContext } from '../config';
 import dynamic from 'next/dynamic';
 
@@ -22,18 +22,17 @@ const WebVideo = ({ source, style }: any) => (
 // Dynamically import react-native-video only for mobile
 const MobileVideo = Platform.OS === 'web' ? null : require('react-native-video').default;
 
-const VideoPlayer = ({ source, style, isSecondVideo = false }: any) => {
+const VideoPlayer = ({ source, style }: any) => {
     if (Platform.OS === 'web') {
         return <WebVideo source={source} style={style} />;
     }
 
     if (MobileVideo) {
-        // For mobile, ensure each video has its own unique configuration
         const videoSource = {
             uri: source,
             type: 'mp4',
             isNetwork: true,
-            cache: false, // Disable caching to prevent source mixing
+            cache: false,
         };
             
         return (
@@ -48,7 +47,6 @@ const VideoPlayer = ({ source, style, isSecondVideo = false }: any) => {
                 ignoreSilentSwitch="ignore"
                 controls={true}
                 paused={false}
-                key={isSecondVideo ? 'video2' : 'video1'} // Ensure unique instances
             />
         );
     }
@@ -71,11 +69,7 @@ const AppThemed = () => {
     const { theme } = React.useContext(ThemeContext);
     const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
-    // Define different video sources
-    const videos = {
-        video1: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        video2: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
-    };
+    const videoSource = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
     useEffect(() => {
         const onChange = ({ window }: { window: ScaledSize }) => {
@@ -91,42 +85,18 @@ const AppThemed = () => {
         };
     }, []);
 
-    const getVideoStyles = (isMainVideo: boolean): ViewStyle => {
-        const padding = 12;
-        const containerWidth = dimensions.width - (padding * 2);
-        const gap = 8;
-        
-        const availableWidth = containerWidth - gap;
-        const videoWidth = isMainVideo 
-            ? availableWidth * 0.6
-            : availableWidth * 0.4;
-            
-        return {
-            width: videoWidth,
-            height: dimensions.height - (padding * 2),
-        };
-    };
-
     return (
-        <View style={styles.mainContainer}>
-            <StatusBar backgroundColor="#000" barStyle="light-content" />
-            <View style={styles.videosContainer}>
-                {/* First Video */}
-                <View style={[styles.videoWrapper, getVideoStyles(true)]}>
+        <View style={styles.pageContainer}>
+            <View style={[
+                styles.mainContainer,
+                Platform.OS === 'web' && styles.webContainer
+            ]}>
+                <StatusBar backgroundColor="#000" barStyle="light-content" />
+                <View style={styles.videoContainer}>
                     <DynamicVideoPlayer
-                        source={videos.video1}
+                        source={videoSource}
                         style={styles.video}
                         resizeMode="cover"
-                        isSecondVideo={false}
-                    />
-                </View>
-                {/* Second Video */}
-                <View style={[styles.videoWrapper, getVideoStyles(false)]}>
-                    <DynamicVideoPlayer
-                        source={videos.video2}
-                        style={styles.video}
-                        resizeMode="cover"
-                        isSecondVideo={true}
                     />
                 </View>
             </View>
@@ -135,30 +105,34 @@ const AppThemed = () => {
 };
 
 const styles = StyleSheet.create({
-    mainContainer: {
+    pageContainer: {
         flex: 1,
-        backgroundColor: '#0a0a0a',
-    },
-    videosContainer: {
-        flex: 1,
-        flexDirection: 'row',
+        backgroundColor: '#1a1a1a',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 12,
-        gap: 8,
+        minHeight: Platform.OS === 'web' ? Dimensions.get('window').height : '100%',
+        height: Platform.OS === 'web' ? Dimensions.get('window').height : '100%',
     },
-    videoWrapper: {
-        backgroundColor: '#111',
-        borderRadius: 12,
-        overflow: 'hidden',
-        ...(Platform.OS === 'web' && {
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-        }),
+    mainContainer: {
+        flex: 1,
+        backgroundColor: '#000',
+        width: '100%',
+        height: '100%',
+    },
+    webContainer: {
+        width: 390, // iPhone 12/13/14 width
+        minHeight: '100%',
+        height: '100%',
+    },
+    videoContainer: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
     },
     video: {
         width: '100%',
         height: '100%',
-        borderRadius: 12,
+        flex: 1,
     },
 });
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, Platform, ScaledSize, ViewStyle, StatusBar } from 'react-native';
+import { View, StyleSheet, Dimensions, Platform, ScaledSize, ViewStyle, StatusBar, Text } from 'react-native';
 import { ThemeProvider, ThemeContext } from '../config';
 import dynamic from 'next/dynamic';
 
@@ -70,6 +70,7 @@ const AppThemed = () => {
     const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
     const videoSource = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    const videoTitle = "Big Buck Bunny";
 
     useEffect(() => {
         const onChange = ({ window }: { window: ScaledSize }) => {
@@ -92,12 +93,17 @@ const AppThemed = () => {
                 Platform.OS === 'web' && styles.webContainer
             ]}>
                 <StatusBar backgroundColor="#000" barStyle="light-content" />
-                <View style={styles.videoContainer}>
-                    <DynamicVideoPlayer
-                        source={videoSource}
-                        style={styles.video}
-                        resizeMode="cover"
-                    />
+                <View style={styles.contentContainer}>
+                    <View style={styles.videoContainer}>
+                        <DynamicVideoPlayer
+                            source={videoSource}
+                            style={styles.video}
+                            resizeMode="cover"
+                        />
+                    </View>
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.titleText}>{videoTitle}</Text>
+                    </View>
                 </View>
             </View>
         </View>
@@ -124,15 +130,32 @@ const styles = StyleSheet.create({
         minHeight: '100%',
         height: '100%',
     },
-    videoContainer: {
+    contentContainer: {
         flex: 1,
         width: '100%',
         height: '100%',
+    },
+    videoContainer: {
+        flex: 1,
+        width: '100%',
     },
     video: {
         width: '100%',
         height: '100%',
         flex: 1,
+    },
+    titleContainer: {
+        width: '100%',
+        padding: 16,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+    },
+    titleText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
     },
 });
 

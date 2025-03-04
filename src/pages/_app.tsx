@@ -1,5 +1,15 @@
-import React from 'react';
+import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
-export default function MyApp({ Component, pageProps }) {
-    return <Component {...pageProps} />;
+function MyApp({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      require('react-native-web');
+    }
+  }, []);
+
+  return <Component {...pageProps} />;
 }
+
+export default MyApp;

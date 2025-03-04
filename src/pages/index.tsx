@@ -1,5 +1,7 @@
-import React from 'react';
-import App from '../app';
+import dynamic from 'next/dynamic';
 
-const Page = () => <App />;
-export default Page;
+const App = dynamic(() => import('../app'), { ssr: false });
+
+export default function Home() {
+  return <App />;
+}
